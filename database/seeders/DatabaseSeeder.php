@@ -7,6 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class DatabaseSeeder extends Seeder
 {
@@ -36,7 +37,7 @@ class DatabaseSeeder extends Seeder
         //     'is_verified' => true,
         //     'phone' => '555-1234'
         // ]);
-        User::firstOrCreate(
+        $vendor = User::firstOrCreate(
             ['email' => 'vendor@tienda.com'],
             [
                 'name' => 'Vendedor Sillas Sostenibles',
@@ -46,6 +47,9 @@ class DatabaseSeeder extends Seeder
                 'phone' => '555-1234'
             ]
         );
+
+        Log::info('Seeder ejecutado. Usuario: ' . $vendor->email);
+
 
         // // Productos de ejemplo
         // $products = [
