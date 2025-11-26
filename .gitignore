@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+
+
+#carpeta de imagen
+/public/images/products/
