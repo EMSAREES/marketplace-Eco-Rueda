@@ -83,7 +83,7 @@
 
         @if(auth()->user()->products->count())
             <div class="space-y-4">
-                @foreach(auth()->user()->products as $product)
+                @foreach($products as $product)
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
                         <div class="flex gap-6 p-6">
                             <!-- IMAGEN -->
@@ -162,7 +162,7 @@
         <h2 class="text-2xl font-bold text-eco-dark mb-8">Órdenes Recibidas</h2>
 
         @php
-            $vendorOrders = auth()->user()->orderItems()->with('order')->get()->groupBy('order_id');
+            $vendorOrders = $orders;
         @endphp
 
         @if($vendorOrders->count())
