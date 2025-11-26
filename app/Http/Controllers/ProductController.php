@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
+
 
 class ProductController extends Controller
 {
@@ -50,141 +55,215 @@ class ProductController extends Controller
     }
 
     // PANEL VENDEDOR - Formulario para crear producto
-    // public function create()
-    // {
-    //     $this->authorize('isVendor'); // Solo vendedores
-    //     return view('vendor.products.create');
-    // }
+    public function create()
+    {
+        // Verificar que sea vendedor
+        if (!Auth::check() || Auth::user()->role !== 'vendor') {
+            return redirect()->route('login')
+                ->with('error', 'Debes ser vendedor para crear productos');
+        }
 
-    // // PANEL VENDEDOR - Guardar producto con múltiples imágenes
-    // public function store(Request $request)
-    // {
-    //     $this->authorize('isVendor');
+        $product = new Product();
+        return view('vendor.products.create', compact('product'));
+    }
 
-    //     $validated = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'description' => 'required|string',
-    //         'price' => 'required|numeric|min:0.01',
-    //         'stock' => 'required|integer|min:0',
-    //         'material' => 'required|string',
-    //         'color' => 'nullable|string',
-    //         'images' => 'required|array|min:1|max:10', // Mínimo 1, máximo 10 imágenes
-    //         'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // 2MB por imagen
-    //     ]);
+    // PANEL VENDEDOR - Guardar producto con múltiples imágenes
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0.01',
+            'material' => 'required|string',
+            'stock' => 'required|integer|min:0',
+            'images.*' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+        ]);
 
-    //     // Crear producto
-    //     $product = Product::create([
-    //         'vendor_id' => auth()->id(),
-    //         'name' => $validated['name'],
-    //         'description' => $validated['description'],
-    //         'price' => $validated['price'],
-    //         'stock' => $validated['stock'],
-    //         'material' => $validated['material'],
-    //         'color' => $validated['color'],
-    //         'is_active' => true
-    //     ]);
+        try {
+            $product = Product::create([
+                'vendor_id' => Auth::id(),
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'material' => $request->material,
+                'color' => $request->color ?? null,
+                'is_active' => $request->is_active ?? 1,
+                'stock' => $request->stock,
+            ]);
 
-    //     // Guardar imágenes
-    //     if ($request->hasFile('images')) {
-    //         foreach ($request->file('images') as $index => $image) {
-    //             // Guardar en storage/app/public/products/
-    //             $path = $image->store('products', 'public');
+            $basePath = public_path('images/products/');
+            if (!File::exists($basePath)) {
+                File::makeDirectory($basePath, 0755, true);
+            }
 
-    //             // Crear registro en ProductImage
-    //             ProductImage::create([
-    //                 'product_id' => $product->id,
-    //                 'image_path' => $path,
-    //                 'order' => $index + 1,
-    //                 'is_primary' => $index === 0 // Primera es principal
-    //             ]);
-    //         }
-    //     }
+            $order = 1;
 
-    //     return redirect()->route('vendor.products.index')
-    //         ->with('success', 'Producto creado exitosamente con ' . count($validated['images']) . ' imágenes');
-    // }
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = $product->id . '-' . time() . '-' . uniqid() . '.' . $ext;
 
-    // // PANEL VENDEDOR - Editar producto
-    // public function edit($id)
-    // {
-    //     $product = Product::findOrFail($id);
-    //     $this->authorize('isProductOwner', $product);
-    //     return view('vendor.products.edit', compact('product'));
-    // }
+                    // Mover archivo directamente
+                    $file->move($basePath, $filename);
 
-    // // PANEL VENDEDOR - Actualizar producto
-    // public function update(Request $request, $id)
-    // {
-    //     $product = Product::findOrFail($id);
-    //     $this->authorize('isProductOwner', $product);
+                    // Opción: redimensionar con GD nativo
+                    $this->resizeImage($basePath . $filename, 600, 600);
 
-    //     $validated = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'description' => 'required|string',
-    //         'price' => 'required|numeric|min:0.01',
-    //         'stock' => 'required|integer|min:0',
-    //         'material' => 'required|string',
-    //         'color' => 'nullable|string',
-    //         'images' => 'nullable|array|max:10',
-    //         'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-    //         'remove_images' => 'nullable|array' // IDs de imágenes a eliminar
-    //     ]);
+                    // Guardar referencia
+                    $product->images()->create([
+                        'image_path' => 'images/products/' . $filename,
+                        'order' => $order,
+                        'is_primary' => $order === 1,
+                    ]);
 
-    //     // Actualizar datos básicos
-    //     $product->update([
-    //         'name' => $validated['name'],
-    //         'description' => $validated['description'],
-    //         'price' => $validated['price'],
-    //         'stock' => $validated['stock'],
-    //         'material' => $validated['material'],
-    //         'color' => $validated['color']
-    //     ]);
+                    $order++;
+                }
+            }
 
-    //     // Eliminar imágenes si se solicita
-    //     if ($request->has('remove_images')) {
-    //         foreach ($validated['remove_images'] as $imageId) {
-    //             $image = ProductImage::findOrFail($imageId);
-    //             // Eliminar archivo del storage
-    //             Storage::disk('public')->delete($image->image_path);
-    //             $image->delete();
-    //         }
-    //     }
+            session()->flash('success', 'Producto creado con exito.');
 
-    //     // Agregar nuevas imágenes si se cargan
-    //     if ($request->hasFile('images')) {
-    //         $currentOrder = $product->images()->max('order') ?? 0;
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto creado correctamente',
+                'redirect' => route('vendor.products.create'),
+            ]);
 
-    //         foreach ($request->file('images') as $image) {
-    //             $path = $image->store('products', 'public');
-    //             $currentOrder++;
+        } catch (\Exception $e) {
+            Log::error('Error al crear producto: ' . $e->getMessage());
 
-    //             ProductImage::create([
-    //                 'product_id' => $product->id,
-    //                 'image_path' => $path,
-    //                 'order' => $currentOrder
-    //             ]);
-    //         }
-    //     }
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el producto: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 
-    //     return redirect()->route('vendor.products.index')
-    //         ->with('success', 'Producto actualizado exitosamente');
-    // }
+    // Función para redimensionar imagen con GD
+    private function resizeImage($path, $width, $height)
+    {
+        list($w, $h, $type) = getimagesize($path);
 
-    // // PANEL VENDEDOR - Eliminar producto
-    // public function destroy($id)
-    // {
-    //     $product = Product::findOrFail($id);
-    //     $this->authorize('isProductOwner', $product);
+        $ratio = $w / $h;
+        if ($width/$height > $ratio) {
+            $new_width = $height * $ratio;
+            $new_height = $height;
+        } else {
+            $new_height = $width / $ratio;
+            $new_width = $width;
+        }
 
-    //     // Eliminar imágenes
-    //     foreach ($product->images as $image) {
-    //         Storage::disk('public')->delete($image->image_path);
-    //         $image->delete();
-    //     }
+        $src = null;
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                $src = imagecreatefromjpeg($path);
+                break;
+            case IMAGETYPE_PNG:
+                $src = imagecreatefrompng($path);
+                break;
+            case IMAGETYPE_GIF:
+                $src = imagecreatefromgif($path);
+                break;
+        }
 
-    //     $product->delete();
+        $dst = imagecreatetruecolor($width, $height);
 
-    //     return redirect()->route('vendor.products.index')
-    //         ->with('success', 'Producto eliminado exitosamente');
-    // }
+        // Fondo blanco para PNG/GIF
+        $white = imagecolorallocate($dst, 255, 255, 255);
+        imagefill($dst, 0, 0, $white);
+
+        $x = ($width - $new_width) / 2;
+        $y = ($height - $new_height) / 2;
+
+        imagecopyresampled($dst, $src, $x, $y, 0, 0, $new_width, $new_height, $w, $h);
+
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                imagejpeg($dst, $path, 90);
+                break;
+            case IMAGETYPE_PNG:
+                imagepng($dst, $path);
+                break;
+            case IMAGETYPE_GIF:
+                imagegif($dst, $path);
+                break;
+        }
+
+        imagedestroy($src);
+        imagedestroy($dst);
+    }
+
+    // PANEL VENDEDOR - Editar producto
+    public function edit($id)
+    {
+        $product = Product::findOrFail($id);
+        // $this->authorize('isProductOwner', $product);
+        return view('vendor.products.edit', compact('product'));
+    }
+
+    // PANEL VENDEDOR - Actualizar producto
+    public function update(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'price' => 'required|numeric|min:0.01',
+        'material' => 'required|string',
+        'stock' => 'required|integer|min:0',
+        'color' => 'nullable|string|max:50',
+        'is_active' => 'nullable|boolean',
+    ]);
+
+    try {
+        $product = Product::findOrFail($id);
+
+        // temporal: comentar la autorización
+        // $this->authorize('isProductOwner', $product);
+
+        $product->update($request->only([
+            'name', 'description', 'price', 'material', 'color', 'is_active', 'stock'
+        ]));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto actualizado correctamente',
+            'redirect' => route('vendor.dashboard'),
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error al actualizar producto: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar el producto: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+
+    // PANEL VENDEDOR - Eliminar producto
+    public function destroy($id)
+    {
+        $user = Auth::user();
+
+        // Encontrar producto del usuario
+        $product = $user->products()->findOrFail($id);
+
+        // Borrar imágenes físicas
+        foreach ($product->images as $image) {
+            if (Storage::exists($image->path)) {
+                Storage::delete($image->path);
+            }
+        }
+
+        // Borrar registros de imágenes
+        $product->images()->delete();
+
+        // Borrar producto
+        $product->delete();
+
+        session()->flash('success', 'Empleto eliminado con exito.');
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
 }

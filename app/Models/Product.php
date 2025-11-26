@@ -38,11 +38,9 @@ class Product extends Model
     // Obtener imagen destacada
     public function getFeaturedImage()
     {
-        return $this->images()
-            ->orderBy('is_primary', 'desc')
-            ->orderBy('order', 'asc')
-            ->first();
+        return $this->images()->where('is_primary', true)->first() ?? $this->images()->first();
     }
+    
 
     // Métodos
     public function isInStock()

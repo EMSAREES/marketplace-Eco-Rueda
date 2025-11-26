@@ -64,10 +64,10 @@
 
     <!-- NAVEGACIÓN TABS -->
     <div class="mb-8 flex gap-4 border-b-2 border-eco-sand">
-        <button onclick="showTab('productos')" id="tab-productos" class="px-6 py-3 font-bold text-eco-green border-b-4 border-eco-green">
+        <button onclick="showTab('productos')" id="btn-tab-productos" class="px-6 py-3 font-bold text-eco-green border-b-4 border-eco-green">
             <i class="fas fa-chair"></i> Mis Productos
         </button>
-        <button onclick="showTab('ordenes')" id="tab-ordenes" class="px-6 py-3 font-bold text-gray-600 hover:text-eco-green transition">
+        <button onclick="showTab('ordenes')" id="btn-tab-ordenes" class="px-6 py-3 font-bold text-gray-600 hover:text-eco-green transition">
             <i class="fas fa-box"></i> Órdenes Recibidas
         </button>
     </div>
@@ -76,7 +76,7 @@
     <div id="tab-productos" class="tab-content">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-2xl font-bold text-eco-dark">Mis Productos</h2>
-            <a href="{{-- {{ route('vendor.products.create') }} --}}" class="bg-eco-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition font-bold">
+            <a href="{{ route('vendor.products.create') }}" class="bg-eco-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition font-bold">
                 <i class="fas fa-plus"></i> Agregar Producto
             </a>
         </div>
@@ -89,7 +89,7 @@
                             <!-- IMAGEN -->
                             <div class="w-32 h-32 bg-eco-sand rounded-lg flex items-center justify-center flex-shrink-0">
                                 @if($product->getFeaturedImage())
-                                    <img src="{{ $product->getFeaturedImage()->getUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover rounded-lg">
+                                    <img src="{{ $product->getFeaturedImage()->getUrl() }}" alt="{{ $product->name }}">
                                 @else
                                     <i class="fas fa-chair text-4xl text-eco-green opacity-30"></i>
                                 @endif
@@ -132,16 +132,15 @@
 
                             <!-- ACCIONES -->
                             <div class="flex flex-col gap-2 justify-center">
-                                <a href="{{-- {{ route('vendor.products.edit', $product->id) }} --}}" class="bg-eco-green text-white px-4 py-2 rounded hover:bg-opacity-90 transition text-sm font-bold">
+                                <a href="{{ route('vendor.products.edit', $product->id) }}" class="bg-eco-green text-white px-4 py-2 rounded hover:bg-opacity-90 transition text-sm font-bold">
                                     <i class="fas fa-edit"></i> Editar
                                 </a>
-                                <form action="{{-- {{ route('vendor.products.destroy', $product->id) }} --}}" method="POST" onsubmit="return confirm('¿Estás seguro?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition text-sm font-bold">
-                                        <i class="fas fa-trash"></i> Eliminar
-                                    </button>
-                                </form>
+                                <button id="deleteproducto"
+                                    class="btn-delete-product w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition text-sm font-bold"
+                                    data-id="{{ $product->id }}"
+                                >
+                                    Eliminar
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -151,7 +150,7 @@
             <div class="text-center py-12 bg-eco-sand rounded-lg">
                 <i class="fas fa-box-open text-6xl text-eco-green opacity-30 mb-4 block"></i>
                 <p class="text-gray-600 mb-6">No tienes productos aún</p>
-                <a href="{{-- {{ route('vendor.products.create') }} --}}" class="inline-block bg-eco-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition font-bold">
+                <a href="{{ route('vendor.products.create') }}" class="inline-block bg-eco-green text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition font-bold">
                     <i class="fas fa-plus"></i> Agregar Mi Primer Producto
                 </a>
             </div>
@@ -268,15 +267,37 @@
         });
 
         // Remover estilos activos de botones
-        document.querySelectorAll('[id^="tab-"]').forEach(btn => {
+        document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
             btn.classList.remove('border-b-4', 'border-eco-green', 'text-eco-green');
             btn.classList.add('text-gray-600', 'hover:text-eco-green');
         });
 
         // Mostrar tab seleccionado
         document.getElementById('tab-' + tabName).classList.remove('hidden');
-        document.getElementById('tab-' + tabName).classList.add('border-b-4', 'border-eco-green', 'text-eco-green');
+        document.getElementById('btn-tab-' + tabName).classList.add('border-b-4', 'border-eco-green', 'text-eco-green');
     }
+
+    $('#deleteproducto').click(function() {
+            if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+
+            let proId = $(this).data('id');
+
+            $.ajax({
+                url: '{{ route("vendor.products.destroy", ":id") }}'.replace(':id', proId),
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status == true) {
+                        window.location.href = "{{ route('vendor.dashboard') }}";
+                    }
+                },
+                error: function(xhr) {
+                    alert('Ocurrió un error al eliminar el producto');
+                }
+            });
+    });
 </script>
 
 @endsection

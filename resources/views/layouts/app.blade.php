@@ -9,6 +9,8 @@
 
     <!-- Tailwind sin warning -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
     <script>
         tailwind.config = {

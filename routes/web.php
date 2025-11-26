@@ -92,23 +92,23 @@ Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
         ->name('vendor.dashboard');
 
     // Gestionar Productos
-//     Route::get('/productos', [ProductController::class, 'vendorIndex'])
-//         ->name('vendor.products.index');
+    // Route::get('/productos', [ProductController::class, 'vendorIndex'])
+    //     ->name('vendor.products.index');
 
-//     Route::get('/productos/crear', [ProductController::class, 'create'])
-//         ->name('vendor.products.create');
+    Route::get('/productos/crear', [ProductController::class, 'create'])
+        ->name('vendor.products.create');
 
-//     Route::post('/productos', [ProductController::class, 'store'])
-//         ->name('vendor.products.store');
+    Route::post('/productos', [ProductController::class, 'store'])
+        ->name('vendor.products.store');
 
-//     Route::get('/productos/{id}/editar', [ProductController::class, 'edit'])
-//         ->name('vendor.products.edit');
+    Route::get('/productos/{id}/editar', [ProductController::class, 'edit'])
+        ->name('vendor.products.edit');
 
-//     Route::put('/productos/{id}', [ProductController::class, 'update'])
-//         ->name('vendor.products.update');
+    Route::put('/productos/{id}', [ProductController::class, 'update'])
+        ->name('vendor.products.update');
 
-//     Route::delete('/productos/{id}', [ProductController::class, 'destroy'])
-//         ->name('vendor.products.destroy');
+    Route::delete('/productos/{id}', [ProductController::class, 'destroy'])
+        ->name('vendor.products.destroy');
 
     // Gestionar Órdenes Recibidas
 //     Route::get('/ordenes', [VendorController::class, 'orders'])
