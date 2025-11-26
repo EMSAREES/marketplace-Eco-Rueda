@@ -91,10 +91,10 @@ class ProductController extends Controller
                 'stock' => $request->stock,
             ]);
 
-            $basePath = public_path('images/products/');
-            if (!File::exists($basePath)) {
-                File::makeDirectory($basePath, 0755, true);
-            }
+            // $basePath = public_path('images/products/');
+            // if (!File::exists($basePath)) {
+            //     File::makeDirectory($basePath, 0755, true);
+            // }
 
             $order = 1;
 
@@ -245,28 +245,34 @@ class ProductController extends Controller
     // PANEL VENDEDOR - Eliminar producto
     public function destroy($id)
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
+            $product = $user->products()->findOrFail($id);
 
-        // Encontrar producto del usuario
-        $product = $user->products()->findOrFail($id);
+            foreach ($product->images as $image) {
 
-        // Borrar imágenes físicas
-        foreach ($product->images as $image) {
-            if (Storage::exists($image->path)) {
-                Storage::delete($image->path);
+                // Remover el prefijo "storage/" para mapear al disco "public"
+                $relativePath = ltrim(str_replace('storage/', '', $image->image_path), '/');
+
+                // Verificar si existe en storage/app/public/...
+                if (Storage::disk('public')->exists($relativePath)) {
+                    Storage::disk('public')->delete($relativePath);
+                }
             }
+
+            // Eliminar registros de BD
+            $product->images()->delete();
+            $product->delete();
+
+            return response()->json(['status' => true]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Borrar registros de imágenes
-        $product->images()->delete();
-
-        // Borrar producto
-        $product->delete();
-
-        session()->flash('success', 'Empleto eliminado con exito.');
-
-        return response()->json([
-            'status' => true,
-        ]);
     }
+
+
 }

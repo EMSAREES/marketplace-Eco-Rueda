@@ -277,7 +277,7 @@
         document.getElementById('btn-tab-' + tabName).classList.add('border-b-4', 'border-eco-green', 'text-eco-green');
     }
 
-    $('#deleteproducto').click(function() {
+    $('.btn-delete-product').click(function() {
             if (!confirm('¿Estás seguro de eliminar este producto?')) return;
 
             let proId = $(this).data('id');
