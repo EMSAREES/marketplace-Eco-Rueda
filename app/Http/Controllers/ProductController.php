@@ -104,14 +104,17 @@ class ProductController extends Controller
                     $filename = $product->id . '-' . time() . '-' . uniqid() . '.' . $ext;
 
                     // Mover archivo directamente
-                    $file->move($basePath, $filename);
+                    // $file->move($basePath, $filename);
 
                     // Opción: redimensionar con GD nativo
-                    $this->resizeImage($basePath . $filename, 600, 600);
+                    // $this->resizeImage($basePath . $filename, 600, 600);
+
+                    $path = $file->store('products', 'public');
 
                     // Guardar referencia
                     $product->images()->create([
-                        'image_path' => 'images/products/' . $filename,
+                        // 'image_path' => 'images/products/' . $filename,
+                        'image_path' => 'storage/' . $path,
                         'order' => $order,
                         'is_primary' => $order === 1,
                     ]);
