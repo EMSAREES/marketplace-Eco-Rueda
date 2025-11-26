@@ -28,14 +28,24 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // Vendedor de prueba
-        $vendor = User::create([
-            'name' => 'Vendedor Sillas Sostenibles',
-            'email' => 'vendor@tienda.com',
-            'password' => Hash::make('password'),
-            'role' => 'vendor',
-            'is_verified' => true,
-            'phone' => '555-1234'
-        ]);
+        // $vendor = User::create([
+        //     'name' => 'Vendedor Sillas Sostenibles',
+        //     'email' => 'vendor@tienda.com',
+        //     'password' => Hash::make('password'),
+        //     'role' => 'vendor',
+        //     'is_verified' => true,
+        //     'phone' => '555-1234'
+        // ]);
+        User::firstOrCreate(
+            ['email' => 'vendor@tienda.com'],
+            [
+                'name' => 'Vendedor Sillas Sostenibles',
+                'password' => Hash::make('password'),
+                'role' => 'vendor',
+                'is_verified' => true,
+                'phone' => '555-1234'
+            ]
+        );
 
         // // Productos de ejemplo
         // $products = [
