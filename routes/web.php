@@ -15,15 +15,15 @@ Route::get('/login', [AccountController::class, 'login'])
     ->name('login');
 Route::post('/authenticate',[AccountController::class, 'authenticate'])->name('auth.authenticate');
 
-// Redirigir a Google
+
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])
     ->name('auth.google')
-    ->middleware('guest'); // Solo si NO está autenticado
+    ->middleware('guest');
 
-// Callback de Google
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])
     ->name('auth.google.callback')
-    ->middleware('guest'); // Solo si NO está autenticado
+    ->middleware('guest');
+
 
 Route::post('/logout', [AccountController::class, 'logout'])
     ->name('logout');

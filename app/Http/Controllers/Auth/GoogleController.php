@@ -31,6 +31,7 @@ class GoogleController extends Controller
      */
     public function handleGoogleCallback()
     {
+        dd('Callback reached');
         try {
             // Obtener usuario de Google
             $googleUser = Socialite::driver('google')->user();
@@ -49,11 +50,12 @@ class GoogleController extends Controller
                 $user = User::create([
                     'name' => $googleUser->getName() ?? $googleUser->getEmail(),
                     'email' => $googleUser->getEmail(),
-                    'password' => bcrypt(Str::random(32)), // Password aleatorio (no lo va a usar)
-                    'role' => 'customer', // Nuevos usuarios vía Google son compradores
-                    'is_verified' => true, // Google verifica el email
+                    'password' => bcrypt(Str::random(32)),
+                    'role' => 'customer',
+                    'is_verified' => true,
                     'email_verified_at' => now(),
                 ]);
+
             }
 
             // Si el usuario es vendedor sin verificar, no dejar que inicie sesión por Google
