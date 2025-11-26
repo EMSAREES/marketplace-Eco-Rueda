@@ -34,6 +34,17 @@ Route::get('/', [ProductController::class, 'index'])
 Route::get('/productos/{id}', [ProductController::class, 'show'])
     ->name('products.show');
 
+
+
+// ==================== Page (Público) ====================
+use App\Http\Controllers\PageController;
+
+//Principal catálogo de productos
+Route::get('/about', [PageController::class, 'about'])
+    ->name('page.about');
+
+
+
 // ==================== CARRITO (Authenticated) ====================
 
 use App\Http\Controllers\CartController;
@@ -116,4 +127,27 @@ Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
 
 //     Route::post('/ordenes/{id}/estado', [VendorController::class, 'updateOrderStatus'])
 //         ->name('vendor.orders.update-status');
+});
+
+
+
+// ==================== PERFIL DE USUARIO (Authenticated) ====================
+use App\Http\Controllers\ProfileController;
+
+Route::middleware('auth')->group(function () {
+    // Ver perfil
+    Route::get('/perfil', [ProfileController::class, 'show'])
+        ->name('profile.show');
+
+    // Actualizar información personal
+    Route::put('/perfil/actualizar', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    // Actualizar dirección
+    Route::put('/perfil/direccion', [ProfileController::class, 'updateAddress'])
+        ->name('profile.update-address');
+
+    // Ver orden específica del perfil
+    Route::get('/perfil/orden/{orderId}', [ProfileController::class, 'viewOrder'])
+        ->name('profile.view-order');
 });

@@ -45,6 +45,9 @@
                     <option value="Costales Reciclados" {{ request('material') == 'Costales Reciclados' ? 'selected' : '' }}>Costales Reciclados</option>
                     <option value="Madera Recuperada" {{ request('material') == 'Madera Recuperada' ? 'selected' : '' }}>Madera Recuperada</option>
                     <option value="Plástico Reciclado" {{ request('material') == 'Plástico Reciclado' ? 'selected' : '' }}>Plástico Reciclado</option>
+                    <option value="Llantas de Auto" {{ request('material') == 'Botellas Plásticas' ? 'selected' : '' }}>Botellas Plásticas</option>
+                    <option value="Costales Reciclados" {{ request('material') == 'Metal Reciclado' ? 'selected' : '' }}>Metal Reciclado</option>
+                    <option value="Madera Recuperada" {{ request('material') == 'Mixto' ? 'selected' : '' }}>Mixto</option>
                 </select>
 
                 <!-- Precio -->

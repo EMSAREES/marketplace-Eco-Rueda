@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
+use Stripe\Stripe;
+use Stripe\Product as StripeProduct;
+use Stripe\Price as StripePrice;
 
 
 class ProductController extends Controller
@@ -70,6 +73,8 @@ class ProductController extends Controller
     // PANEL VENDEDOR - Guardar producto con múltiples imágenes
     public function store(Request $request)
     {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -80,6 +85,19 @@ class ProductController extends Controller
         ]);
 
         try {
+
+            // Crear en STRIPE
+            $stripeProduct = StripeProduct::create([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            $stripePrice = StripePrice::create([
+                'unit_amount' => $request->price * 100,
+                'currency' => 'mxn',
+                'product' => $stripeProduct->id,
+            ]);
+
             $product = Product::create([
                 'vendor_id' => Auth::id(),
                 'name' => $request->name,
@@ -89,6 +107,8 @@ class ProductController extends Controller
                 'color' => $request->color ?? null,
                 'is_active' => $request->is_active ?? 1,
                 'stock' => $request->stock,
+                'stripe_product_id' => $stripeProduct->id,
+                'stripe_price_id'   => $stripePrice->id,
             ]);
 
             // $basePath = public_path('images/products/');
@@ -96,8 +116,8 @@ class ProductController extends Controller
             //     File::makeDirectory($basePath, 0755, true);
             // }
 
+            // GUARDAR IMÁGENES
             $order = 1;
-
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $file) {
                     $ext = $file->getClientOriginalExtension();
@@ -205,49 +225,82 @@ class ProductController extends Controller
 
     // PANEL VENDEDOR - Actualizar producto
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'required|string',
-        'price' => 'required|numeric|min:0.01',
-        'material' => 'required|string',
-        'stock' => 'required|integer|min:0',
-        'color' => 'nullable|string|max:50',
-        'is_active' => 'nullable|boolean',
-    ]);
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
 
-    try {
-        $product = Product::findOrFail($id);
-
-        // temporal: comentar la autorización
-        // $this->authorize('isProductOwner', $product);
-
-        $product->update($request->only([
-            'name', 'description', 'price', 'material', 'color', 'is_active', 'stock'
-        ]));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Producto actualizado correctamente',
-            'redirect' => route('vendor.dashboard'),
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0.01',
+            'material' => 'required|string',
+            'stock' => 'required|integer|min:0',
+            'color' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
         ]);
 
-    } catch (\Exception $e) {
-        Log::error('Error al actualizar producto: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al actualizar el producto: ' . $e->getMessage(),
-        ], 500);
+        try {
+
+            $product = Product::findOrFail($id);
+
+            // Actualizar en STRIPE
+            StripeProduct::update($product->stripe_product_id, [
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            $stripePrice = StripePrice::create([
+                    'unit_amount' => $request->price * 100,
+                    'currency' => 'mxn',
+                    'product' => $product->stripe_product_id,
+                ]);
+
+            // temporal: comentar la autorización
+            // $this->authorize('isProductOwner', $product);
+
+            // Actualizar en BD
+            $product->update([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'material' => $request->material,
+                'color' => $request->color,
+                'stock' => $request->stock,
+                'stripe_price_id' => $stripePrice->id,
+            ]);
+
+            // $product->update($request->only([
+            //     'name', 'description', 'price', 'material', 'color', 'is_active', 'stock'
+            // ]));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto actualizado correctamente',
+                'redirect' => route('vendor.dashboard'),
+            ]);
+
+        } catch (\Exception $e) {
+            // Log::error('Error al actualizar producto: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el producto: ' . $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
 
     // PANEL VENDEDOR - Eliminar producto
     public function destroy($id)
     {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
         try {
             $user = Auth::user();
             $product = $user->products()->findOrFail($id);
+
+            // Eliminar en STRIPE
+            StripeProduct::update($product->stripe_product_id, [
+                'active' => false, // solo se desactiva
+            ]);
 
             foreach ($product->images as $image) {
 

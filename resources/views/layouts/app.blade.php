@@ -48,12 +48,12 @@
                     <a href="{{ route('products.index') }}" class="hover:text-eco-lime transition">
                         <i class="fas fa-chair"></i> Catálogo
                     </a>
-                    <a href="#" class="hover:text-eco-lime transition">
+                    <a href="{{  route('page.about') }}" class="hover:text-eco-lime transition">
                         <i class="fas fa-leaf"></i> Sobre Nosotros
                     </a>
-                    <a href="#" class="hover:text-eco-lime transition">
+                    {{-- <a href="#" class="hover:text-eco-lime transition">
                         <i class="fas fa-recycle"></i> Nuestro Proceso
-                    </a>
+                    </a> --}}
                 </div>
 
                 <!-- DERECHA -->
@@ -81,7 +81,7 @@
                                         <i class="fas fa-store"></i> Panel Vendedor
                                     </a>
                                 @endif
-                                <a href="#" class="block px-4 py-2 hover:bg-eco-lime hover:text-white transition">
+                                <a href="{{ route('profile.show') }}" class="block px-4 py-2 hover:bg-eco-lime hover:text-white transition">
                                     <i class="fas fa-cog"></i> Perfil
                                 </a>
                                 <hr class="my-2">
@@ -110,9 +110,11 @@
 
             <!-- MENU MOBILE -->
             <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-eco-lime border-opacity-30">
-                <a href="#" class="block py-2 text-sm hover:text-eco-lime">Catálogo</a>
-                <a href="#" class="block py-2 text-sm hover:text-eco-lime">Sobre Nosotros</a>
-                <a href="#" class="block py-2 text-sm hover:text-eco-lime">Nuestro Proceso</a>
+                <a href="{{ route('products.index') }}" class="hover:text-eco-lime transition">
+                    <i class="fas fa-chair"></i> Catálogo
+                </a>
+                <a href="{{  route('page.about') }}" class="block py-2 text-sm hover:text-eco-lime">Sobre Nosotros</a>
+                {{-- <a href="#" class="block py-2 text-sm hover:text-eco-lime">Nuestro Proceso</a> --}}
             </div>
         </div>
     </nav>
@@ -147,7 +149,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <hr class="border-eco-green mb-8">
             <div class="text-center text-gray-400 text-sm">
-                <p>&copy; 2024 Eco-Rueda. Todos los derechos reservados.</p>
+                <p>&copy;{{ date('Y') }} Eco-Rueda. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>

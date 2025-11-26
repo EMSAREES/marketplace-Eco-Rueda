@@ -11,7 +11,8 @@ class Product extends Model
 
     protected $fillable = [
         'vendor_id', 'name', 'description', 'price', 'stock',
-        'material', 'color', 'image', 'image_2', 'image_3', 'is_active'
+        'material', 'color', 'image', 'image_2', 'image_3', 'is_active','stripe_product_id',
+        'stripe_price_id',
     ];
 
     protected $casts = [
@@ -40,7 +41,7 @@ class Product extends Model
     {
         return $this->images()->where('is_primary', true)->first() ?? $this->images()->first();
     }
-    
+
 
     // Métodos
     public function isInStock()
