@@ -39,7 +39,7 @@ class GoogleController extends Controller
             $googleUser = Socialite::driver('google')->user();
 
             // Validar que tenemos email
-            if (!$googleUser->getEmail()) {
+            if (!$googleUser->email) {
                 return redirect()->route('login')
                     ->with('error', 'No pudimos obtener tu email de Google. Intenta de nuevo.');
             }
@@ -50,9 +50,9 @@ class GoogleController extends Controller
             // Si no existe, crear nuevo usuario
             if (!$user) {
                 $user = User::create([
-                    'name' => $googleUser->getName() ?? $googleUser->getEmail(),
-                    'email' => $googleUser->getEmail(),
-                    'google_id' => $googleUser->getId(),
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'google_id' => $googleUser->id,
                     'password' => bcrypt(Str::random(32)),
                     'role' => 'customer',
                     'is_verified' => true,

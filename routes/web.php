@@ -17,12 +17,12 @@ Route::post('/authenticate',[AccountController::class, 'authenticate'])->name('a
 
 
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])
-    ->name('auth.google')
-    ->middleware('guest');
+    ->name('auth.google');
+    // ->middleware('guest');
 
 Route::get('/google-auth/callback', [GoogleController::class, 'handleGoogleCallback'])
-    ->name('auth.google.callback')
-    ->middleware('guest');
+    ->name('auth.google.callback');
+    // ->middleware('guest');
 
 
 Route::post('/logout', [AccountController::class, 'logout'])
