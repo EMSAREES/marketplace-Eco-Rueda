@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\alert;
 
@@ -34,25 +35,33 @@ class GoogleController extends Controller
      */
     public function handleGoogleCallback()
     {
-       try {
+        try {
             // Obtener usuario de Google
             $googleUser = Socialite::driver('google')->user();
 
             // Validar que tenemos email
-            if (!$googleUser->email) {
+            if (!$googleUser->getEmail()) {
                 return redirect()->route('login')
                     ->with('error', 'No pudimos obtener tu email de Google. Intenta de nuevo.');
             }
 
             // Buscar usuario existente por email
             $user = User::where('email', $googleUser->getEmail())->first();
-            echo($googleUser);
+
+            // Para debug, guardar info del usuario en el log
+            Log::info('Google OAuth user:', [
+                'id' => $googleUser->getId(),
+                'name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'avatar' => $googleUser->getAvatar(),
+            ]);
+
             // Si no existe, crear nuevo usuario
             if (!$user) {
                 $user = User::create([
-                    'name' => $googleUser->name,
-                    'email' => $googleUser->email,
-                    'google_id' => $googleUser->id,
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
                     'password' => bcrypt(Str::random(32)),
                     'role' => 'customer',
                     'is_verified' => true,
@@ -78,12 +87,17 @@ class GoogleController extends Controller
             return redirect()->route('products.index')
                 ->with('success', '¡Bienvenido ' . $user->name . '!');
 
-        } catch (Exception $e) {
-            // Log del error
-            echo 'Google OAuth Error: ' . $e->getMessage();
+        } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+            Log::error('Google OAuth InvalidStateException: ' . $e->getMessage());
+            return redirect()->route('login')
+                ->with('error', 'Error de sesión con Google. Intenta de nuevo.');
 
-            // return redirect()->route('login')
-            //     ->with('error', 'Error al autenticar con Google: ' . $e->getMessage());
+        } catch (Exception $e) {
+            // Guardar el error completo en el log
+            Log::error('Google OAuth Error: ' . $e->getMessage());
+            return redirect()->route('login')
+                ->with('error', 'Error al autenticar con Google. Intenta de nuevo.');
         }
     }
+
 }

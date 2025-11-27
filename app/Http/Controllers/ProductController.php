@@ -152,7 +152,7 @@ class ProductController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error al crear producto: ' . $e->getMessage());
+            // Log::error('Error al crear producto: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
