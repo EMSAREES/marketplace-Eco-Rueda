@@ -20,7 +20,7 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])
     ->name('auth.google')
     ->middleware('guest');
 
-Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])
+Route::get('/google-auth/callback', [GoogleController::class, 'handleGoogleCallback'])
     ->name('auth.google.callback')
     ->middleware('guest');
 

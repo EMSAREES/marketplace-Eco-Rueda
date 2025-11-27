@@ -10,6 +10,8 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Exception;
 
+use function Laravel\Prompts\alert;
+
 class GoogleController extends Controller
 {
     // Redirigir a Google para autenticación
@@ -23,6 +25,7 @@ class GoogleController extends Controller
         }catch(Exception $e){
             return redirect()->route('login')
                 ->with('error', 'Error al conectar con Google. Intenta de nuevo.');
+
         }
     }
 
@@ -31,8 +34,7 @@ class GoogleController extends Controller
      */
     public function handleGoogleCallback()
     {
-        dd('Callback reached');
-        try {
+       try {
             // Obtener usuario de Google
             $googleUser = Socialite::driver('google')->user();
 
@@ -42,46 +44,46 @@ class GoogleController extends Controller
                     ->with('error', 'No pudimos obtener tu email de Google. Intenta de nuevo.');
             }
 
-            // Buscar usuario existente
+            // Buscar usuario existente por email
             $user = User::where('email', $googleUser->getEmail())->first();
-
+            echo($googleUser);
             // Si no existe, crear nuevo usuario
             if (!$user) {
                 $user = User::create([
                     'name' => $googleUser->getName() ?? $googleUser->getEmail(),
                     'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
                     'password' => bcrypt(Str::random(32)),
                     'role' => 'customer',
                     'is_verified' => true,
                     'email_verified_at' => now(),
                 ]);
-
             }
 
-            // Si el usuario es vendedor sin verificar, no dejar que inicie sesión por Google
+            // Si el usuario es vendedor sin verificar, bloquear acceso
             if ($user->role === 'vendor' && !$user->is_verified) {
                 return redirect()->route('login')
                     ->with('error', 'Tu cuenta de vendedor está pendiente de verificación. Contacta a soporte.');
             }
 
             // Iniciar sesión
-            Auth::login($user, remember: true);
+            Auth::login($user, true);
 
             // Redirigir según el rol
             if ($user->role === 'vendor') {
                 return redirect()->route('vendor.dashboard')
                     ->with('success', '¡Bienvenido ' . $user->name . '!');
-            } else {
-                return redirect()->route('products.index')
-                    ->with('success', '¡Bienvenido ' . $user->name . '!');
             }
 
-        } catch (Exception $e) {
-            // Log del error (opcional)
-            // Log::error('Google OAuth Error: ' . $e->getMessage());
+            return redirect()->route('products.index')
+                ->with('success', '¡Bienvenido ' . $user->name . '!');
 
-            return redirect()->route('login')
-                ->with('error', 'Error al autenticar con Google: ' . $e->getMessage());
+        } catch (Exception $e) {
+            // Log del error
+            echo 'Google OAuth Error: ' . $e->getMessage();
+
+            // return redirect()->route('login')
+            //     ->with('error', 'Error al autenticar con Google: ' . $e->getMessage());
         }
     }
 }
