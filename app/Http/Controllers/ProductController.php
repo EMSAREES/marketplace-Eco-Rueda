@@ -313,6 +313,8 @@ class ProductController extends Controller
                 }
             }
 
+            // Eliminar items del carrito relacionados
+            $product->cartItems()->delete();
             // Eliminar registros de BD
             $product->images()->delete();
             $product->delete();
