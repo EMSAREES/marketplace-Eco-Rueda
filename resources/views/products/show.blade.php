@@ -1,11 +1,9 @@
-<!-- resources/views/products/show.blade.php -->
 @extends('layouts.app')
 
 @section('title', $product->name)
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- BREADCRUMB -->
     <div class="mb-8">
         <a href="{{ route('products.index') }}" class="text-eco-green hover:text-eco-lime transition">
             <i class="fas fa-arrow-left"></i> Volver al Catálogo
@@ -13,9 +11,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <!-- GALERÍA DE IMÁGENES -->
         <div>
-            <!-- Imagen Principal -->
             <div class="mb-6">
                 <div class="bg-eco-sand rounded-lg overflow-hidden h-96 md:h-[500px] flex items-center justify-center relative group">
                     <img id="mainImage"
@@ -25,7 +21,6 @@
                 </div>
             </div>
 
-            <!-- Miniaturas -->
             @if($product->images->count() > 1)
                 <div class="grid grid-cols-4 gap-2">
                     @foreach($product->images as $image)
@@ -40,31 +35,25 @@
             @endif
         </div>
 
-        <!-- INFORMACIÓN DEL PRODUCTO -->
         <div>
-            <!-- Material Badge -->
             <div class="mb-4">
                 <span class="inline-block bg-eco-lime text-eco-dark px-4 py-2 rounded-full text-sm font-bold">
                     <i class="fas fa-leaf"></i> {{ $product->material }}
                 </span>
             </div>
 
-            <!-- Título -->
             <h1 class="text-4xl font-bold text-eco-dark mb-2">{{ $product->name }}</h1>
 
-            <!-- Vendedor -->
             <div class="flex items-center gap-2 mb-6 pb-6 border-b-2 border-eco-sand">
                 <i class="fas fa-store text-eco-green text-xl"></i>
                 <p class="text-eco-green font-semibold">{{ $product->vendor->name }}</p>
             </div>
 
-            <!-- Descripción -->
             <div class="mb-8">
                 <h2 class="text-xl font-bold text-eco-dark mb-3">Descripción</h2>
                 <p class="text-gray-700 leading-relaxed">{{ $product->description }}</p>
             </div>
 
-            <!-- Características -->
             <div class="grid grid-cols-2 gap-4 mb-8 p-4 bg-eco-sand rounded-lg">
                 <div>
                     <p class="text-sm text-gray-600">Color</p>
@@ -84,7 +73,6 @@
                 </div>
             </div>
 
-            <!-- PRECIO Y COMPRA -->
             <div class="bg-white border-2 border-eco-green rounded-lg p-8 mb-8">
                 <div class="mb-8">
                     <p class="text-gray-600 text-sm mb-2">Precio</p>
@@ -94,7 +82,6 @@
                     </div>
                 </div>
 
-                <!-- Stock Status -->
                 <div class="mb-8">
                     @if($product->stock > 0)
                         <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
@@ -111,7 +98,6 @@
                     @endif
                 </div>
 
-                <!-- Cantidad y Carrito -->
                 @if($product->stock > 0)
                     <form id="addToCartForm" class="space-y-4">
                         @csrf
@@ -142,7 +128,6 @@
                 <div id="resultMessage" class="mt-4 hidden p-4 rounded-lg"></div>
             </div>
 
-            <!-- Información Sostenible -->
             <div class="bg-eco-green bg-opacity-10 border-l-4 border-eco-green p-4 rounded">
                 <p class="text-eco-green font-bold mb-2">
                     <i class="fas fa-recycle"></i> 100% Producto Reciclado
@@ -154,7 +139,6 @@
         </div>
     </div>
 
-    <!-- PRODUCTOS RELACIONADOS -->
     @if($product->vendor->products->count() > 1)
         <section class="mt-20 pt-12 border-t-2 border-eco-sand">
             <h2 class="text-3xl font-bold text-eco-dark mb-8">Más del Vendedor</h2>
@@ -190,26 +174,30 @@
         document.getElementById('mainImage').src = src;
     }
 
-    function increaseQty(max) {
-        const input = document.getElementById('quantity');
-        if (parseInt(input.value) < max) {
-            input.value = parseInt(input.value) + 1;
-        }
-    }
+    // Ya tienes estas funciones repetidas al final, las dejaré aquí,
+    // pero idealmente deberías tenerlas una sola vez.
 
-    function decreaseQty() {
-        const input = document.getElementById('quantity');
-        if (parseInt(input.value) > 1) {
-            input.value = parseInt(input.value) - 1;
-        }
-    }
+    // function increaseQty(max) {
+    //     const input = document.getElementById('quantity');
+    //     if (parseInt(input.value) < max) {
+    //         input.value = parseInt(input.value) + 1;
+    //     }
+    // }
+
+    // function decreaseQty() {
+    //     const input = document.getElementById('quantity');
+    //     if (parseInt(input.value) > 1) {
+    //         input.value = parseInt(input.value) - 1;
+    //     }
+    // }
 </script>
 
 @endsection
 
+{{-- El siguiente bloque de scripts contiene la lógica AJAX corregida --}}
 @stack('styles')
 <script>
-    // Aumentar/Disminuir cantidad
+    // Aumentar/Disminuir cantidad (repetidas desde arriba, se mantienen por consistencia)
     function increaseQty(max) {
         const input = document.getElementById('quantity');
         if (parseInt(input.value) < max) {
@@ -224,64 +212,7 @@
         }
     }
 
-    // Agregar al carrito con AJAX
-    function addProductToCart(productId) {
-        const quantity = parseInt($('#quantity').val());
-        const btn = $('#submitBtn');
-        const resultMsg = $('#resultMessage');
-
-        $.ajax({
-            url: '{{ route("cart.add", ":id") }}'.replace(':id', productId),
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                quantity: quantity
-            },
-            dataType: 'json',
-            beforeSend: function() {
-                btn.prop('disabled', true);
-                btn.html('<i class="fas fa-spinner fa-spin"></i> Agregando...');
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Mostrar mensaje
-                    resultMsg.removeClass('hidden bg-red-100 text-red-700');
-                    resultMsg.addClass('bg-eco-lime bg-opacity-20 text-eco-green');
-                    resultMsg.html(`
-                        <i class="fas fa-check-circle"></i>
-                        <strong>${response.message}</strong><br>
-                        <small>Total en carrito: $${response.cartTotal.toFixed(2)}</small>
-                    `);
-
-                    // Restaurar cantidad a 1
-                    setTimeout(() => {
-                        $('#quantity').val(1);
-                    }, 500);
-
-                    // Restaurar botón
-                    setTimeout(() => {
-                        btn.prop('disabled', false);
-                        btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
-                    }, 1000);
-                } else {
-                    mostrarError(response.message);
-                }
-            },
-            error: function(xhr) {
-                let message = 'Error al agregar producto';
-                if (xhr.responseJSON?.message) {
-                    message = xhr.responseJSON.message;
-                }
-                mostrarError(message);
-            },
-            complete: function() {
-                btn.prop('disabled', false);
-                btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
-            }
-        });
-    }
-
-    // Mostrar error
+    // Función para mostrar errores de forma consistente
     function mostrarError(message) {
         const resultMsg = $('#resultMessage');
         resultMsg.removeClass('hidden bg-eco-lime bg-opacity-20 text-eco-green');
@@ -292,7 +223,88 @@
         `);
     }
 
-    // Agregar estilos si no existen
+    // 🔥 AGREGAR AL CARRITO CON AJAX (Lógica de animación y temporizador corregida)
+    function addProductToCart(productId) {
+        const quantity = parseInt($('#quantity').val());
+        const btn = $('#submitBtn');
+        const resultMsg = $('#resultMessage');
+
+        // Ocultar mensaje anterior
+        resultMsg.addClass('hidden');
+
+        $.ajax({
+            url: '{{ route("cart.add", ":id") }}'.replace(':id', productId),
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                quantity: quantity
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                // Estado de Carga: Deshabilitar botón y mostrar spinner
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Agregando...');
+            },
+            success: function(response) {
+                // Detener la animación y mostrar el mensaje de éxito en el botón y en el DIV
+                if (response.success) {
+
+                    // 1. DETENER ANIMACIÓN INMEDIATAMENTE en el botón
+                    btn.html('<i class="fas fa-check-circle"></i> Agregado con Éxito');
+
+                    // 2. Mostrar mensaje de éxito (Div)
+                    resultMsg.removeClass('hidden bg-red-100 text-red-700');
+                    resultMsg.addClass('bg-eco-lime bg-opacity-20 text-eco-green');
+                    resultMsg.html(`
+                        <i class="fas fa-check-circle"></i>
+                        <strong>${response.message}</strong><br>
+                        <small>Total en carrito: $${response.cartTotal.toFixed(2)}</small>
+                    `);
+
+                    // Restaurar cantidad a 1
+                    $('#quantity').val(1);
+
+                    // 3. Temporizador de 5 segundos para limpiar
+                    setTimeout(() => {
+                        resultMsg.addClass('hidden'); // Ocultar el div del mensaje
+
+                        // Restaurar botón al estado original después de los 5 segundos
+                        btn.prop('disabled', false);
+                        btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
+                    }, 5000); // 5 segundos
+
+                } else {
+                    // Si hay un error lógico del servidor (e.g., sin stock), mostrar error y restaurar botón inmediatamente
+                    mostrarError(response.message);
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
+
+                    // Ocultar mensaje de error después de 5 segundos
+                    setTimeout(() => {
+                        resultMsg.addClass('hidden');
+                    }, 5000);
+                }
+            },
+            error: function(xhr) {
+                // Si hay un error de conexión/servidor, mostrar error y restaurar botón inmediatamente
+                let message = 'Error al agregar producto';
+                if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+                mostrarError(message);
+
+                btn.prop('disabled', false);
+                btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
+
+                // Ocultar mensaje de error después de 5 segundos
+                setTimeout(() => {
+                    resultMsg.addClass('hidden');
+                }, 5000);
+            }
+        });
+    }
+
+    // Agregar estilos de animación si no existen
     if (!$('#cart-detail-animations').length) {
         $('<style id="cart-detail-animations">')
             .text(`

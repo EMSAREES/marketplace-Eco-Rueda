@@ -122,8 +122,8 @@
 
     <!-- BOTONES DE ACCIÓN -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <a href="{{ route('orders.show', $order->id) }}" class="block text-center bg-eco-green text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
-            <i class="fas fa-file-invoice"></i> Ver Orden Completa
+        <a href="{{ route('profile.show')}}" class="block text-center bg-eco-green text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
+            <i class="fas fa-file-invoice"></i> Ver Perfil
         </a>
         <a href="{{ route('products.index') }}" class="block text-center bg-eco-lime text-eco-dark px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
             <i class="fas fa-arrow-left"></i> Seguir Comprando

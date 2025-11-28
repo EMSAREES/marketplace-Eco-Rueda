@@ -81,7 +81,7 @@
 
                         <!-- ACCIONES -->
                         <div class="flex gap-3 justify-end">
-                            <a href="{{ route('products.show', $order->id) }}" class="bg-eco-green text-white px-4 py-2 rounded hover:bg-opacity-90 transition text-sm font-semibold">
+                            <a href="{{ route('products.show', $item->product->id) }}" class="bg-eco-green text-white px-4 py-2 rounded hover:bg-opacity-90 transition text-sm font-semibold">
                                 <i class="fas fa-eye"></i> Ver Detalles
                             </a>
                         </div>

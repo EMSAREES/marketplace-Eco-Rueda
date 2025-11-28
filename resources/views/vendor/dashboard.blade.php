@@ -236,14 +236,14 @@
                                     <i class="fab fa-whatsapp"></i> WhatsApp
                                 </a>
                                 @if($order->status !== 'completed')
-                                    <form action="{{-- {{ route('vendor.orders.update-status', $order->id) }} --}}" method="POST" class="flex-1">
+                                   {{-- <form action="{{ route('vendor.orders.update-status', $order->id) }}" method="POST" class="flex-1">
                                         @csrf
-                                        <select name="status" onchange="this.form.submit()" class="w-full px-3 py-2 border-2 border-eco-green rounded text-sm">
+                                         <select name="status" onchange="this.form.submit()" class="w-full px-3 py-2 border-2 border-eco-green rounded text-sm">
                                             <option value="">Cambiar Estado</option>
                                             <option value="shipped">Enviado</option>
                                             <option value="completed">Completado</option>
                                         </select>
-                                    </form>
+                                    </form> --}}
                                 @endif
                             </div>
                         </div>
