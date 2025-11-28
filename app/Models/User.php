@@ -62,6 +62,12 @@ class User extends Authenticatable
         return $this->hasMany(OrderItem::class, 'vendor_id');
     }
 
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+
     // Métodos helpers
     public function isVendor()
     {
@@ -77,4 +83,18 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    public function updateProfile(array $data)
+    {
+        $this->update([
+            'name' => $data['name'] ?? $this->name,
+            'phone' => $data['phone'] ?? $this->phone,
+            'address' => $data['address'] ?? $this->address,
+            'city' => $data['city'] ?? $this->city,
+            'state' => $data['state'] ?? $this->state,
+            'country' => $data['country'] ?? $this->country,
+            'postal_code' => $data['postal_code'] ?? $this->postal_code,
+        ]);
+    }
+
 }

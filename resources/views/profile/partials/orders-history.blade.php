@@ -1,10 +1,7 @@
-<!-- PARTIAL 5: HISTORIAL DE COMPRAS -->
-<!-- resources/views/profile/partials/orders-history.blade.php -->
-
 <div>
-    @if(auth()->user()->orders->count())
+    @if($orders->count())
         <div class="space-y-6">
-            @foreach(auth()->user()->orders()->orderBy('created_at', 'desc')->paginate(5) as $order)
+            @foreach($orders as $order)
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
                     <!-- ENCABEZADO ORDEN -->
                     <div class="bg-gradient-to-r from-eco-green to-eco-lime p-6 text-white">
@@ -84,14 +81,9 @@
 
                         <!-- ACCIONES -->
                         <div class="flex gap-3 justify-end">
-                            <a href="{{ route('orders.show', $order->id) }}" class="bg-eco-green text-white px-4 py-2 rounded hover:bg-opacity-90 transition text-sm font-semibold">
+                            <a href="{{ route('products.show', $order->id) }}" class="bg-eco-green text-white px-4 py-2 rounded hover:bg-opacity-90 transition text-sm font-semibold">
                                 <i class="fas fa-eye"></i> Ver Detalles
                             </a>
-                            @if($order->status === 'paid' || $order->status === 'shipped' || $order->status === 'completed')
-                                <a href="#" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition text-sm font-semibold">
-                                    <i class="fas fa-download"></i> Descargar Factura
-                                </a>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -100,7 +92,7 @@
 
         <!-- PAGINACIÓN -->
         <div class="mt-12">
-            {{ auth()->user()->orders()->orderBy('created_at', 'desc')->paginate(5)->links() }}
+            {{ $orders->appends(['tab' => 'orders'])->links('pagination::tailwind') }}
         </div>
     @else
         <!-- SIN COMPRAS -->

@@ -140,12 +140,12 @@
                                     <i class="fas fa-eye"></i> Ver Detalles
                                 </a>
                                 @if($product->stock > 0)
-                                    <form action="{{-- {{ route('cart.add', $product->id) }} --}}" method="POST" class="flex-1">
-                                        @csrf
-                                        <button type="submit" class="w-full bg-eco-lime text-eco-dark py-2 rounded-lg hover:bg-opacity-90 transition font-semibold">
-                                            <i class="fas fa-shopping-cart"></i> Agregar
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        id="add-to-cart-{{ $product->id }}"
+                                        onclick="addToCart({{ $product->id }})"
+                                        class="flex-1 bg-eco-lime text-eco-dark py-2 rounded-lg hover:bg-opacity-90 transition font-semibold">
+                                        <i class="fas fa-shopping-cart"></i> Agregar
+                                    </button>
                                 @else
                                     <button disabled class="flex-1 bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed opacity-60 font-semibold">
                                         Agotado
@@ -195,3 +195,94 @@
 </section>
 
 @endsection
+
+@section('customJs')
+<script>
+    function addToCart(productId) {
+        $.ajax({
+            url: '{{ route("cart.add", ":id") }}'.replace(':id', productId),
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                quantity: 1
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Animación del botón
+                    const btn = $(`#add-to-cart-${productId}`);
+                    btn.addClass('animate-pulse');
+                    btn.html('<i class="fas fa-check"></i> ¡Agregado!');
+
+                    // Notificación
+                    showCartNotification(response.message, 'success');
+
+                    // Restaurar botón
+                    setTimeout(() => {
+                        btn.removeClass('animate-pulse');
+                        btn.html('<i class="fas fa-shopping-cart"></i> Agregar');
+                    }, 1500);
+                } else {
+                    showCartNotification(response.message, 'error');
+                }
+            },
+            error: function(xhr) {
+                let message = 'Error al agregar producto';
+                if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+                showCartNotification(message, 'error');
+            }
+        });
+    }
+
+    // Mostrar notificación toast
+    function showCartNotification(message, type = 'info') {
+        const toastClass = type === 'success' ? 'bg-eco-lime text-eco-dark' : 'bg-red-500 text-white';
+        const toast = `
+            <div class="fixed bottom-6 right-6 ${toastClass} px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 animate-slide-in-up">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        $('body').append(toast);
+
+        setTimeout(() => {
+            $('.animate-slide-in-up').fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+    // Agregar estilos de animación si no existen
+    if (!$('#cart-animations').length) {
+        $('<style id="cart-animations">')
+            .text(`
+                @keyframes slideInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+
+                .animate-slide-in-up {
+                    animation: slideInUp 0.3s ease-out;
+                }
+
+                .animate-pulse {
+                    animation: pulse 0.5s ease-in-out;
+                }
+            `)
+            .appendTo('head');
+    }
+</script>

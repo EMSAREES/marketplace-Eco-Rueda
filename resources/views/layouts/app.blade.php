@@ -59,7 +59,7 @@
                 <!-- DERECHA -->
                 <div class="flex items-center gap-4">
                     <!-- Carrito -->
-                    <a href="#" class="relative hover:text-eco-lime transition">
+                    <a href="{{ route('cart.index') }}" class="relative hover:text-eco-lime transition">
                         <i class="fas fa-shopping-cart text-xl"></i>
                         @if(session('cart'))
                             <span class="absolute -top-2 -right-3 bg-eco-lime text-eco-dark text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">

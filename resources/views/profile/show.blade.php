@@ -111,6 +111,19 @@
             this.classList.add('border-eco-green');
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Revisar si la URL tiene ?tab=orders
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+
+    if (tab) {
+        showTab(tab);
+    } else {
+        showTab('info'); // pestaña por defecto
+    }
+});
+
 </script>
 
 @endsection

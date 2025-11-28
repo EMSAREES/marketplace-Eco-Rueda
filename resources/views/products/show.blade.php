@@ -113,7 +113,7 @@
 
                 <!-- Cantidad y Carrito -->
                 @if($product->stock > 0)
-                    <form action="{{-- {{ route('cart.add', $product->id) }} --}}" method="POST" class="space-y-4">
+                    <form id="addToCartForm" class="space-y-4">
                         @csrf
                         <div>
                             <label class="block text-sm font-bold text-eco-dark mb-2">Cantidad</label>
@@ -129,7 +129,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-eco-lime text-eco-dark py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition">
+                        <button type="button" onclick="addProductToCart({{ $product->id }})" id="submitBtn" class="w-full bg-eco-lime text-eco-dark py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition">
                             <i class="fas fa-shopping-cart"></i> Agregar al Carrito
                         </button>
                     </form>
@@ -138,6 +138,8 @@
                         Producto Agotado
                     </button>
                 @endif
+
+                <div id="resultMessage" class="mt-4 hidden p-4 rounded-lg"></div>
             </div>
 
             <!-- Información Sostenible -->
@@ -204,3 +206,105 @@
 </script>
 
 @endsection
+
+@stack('styles')
+<script>
+    // Aumentar/Disminuir cantidad
+    function increaseQty(max) {
+        const input = document.getElementById('quantity');
+        if (parseInt(input.value) < max) {
+            input.value = parseInt(input.value) + 1;
+        }
+    }
+
+    function decreaseQty() {
+        const input = document.getElementById('quantity');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+    }
+
+    // Agregar al carrito con AJAX
+    function addProductToCart(productId) {
+        const quantity = parseInt($('#quantity').val());
+        const btn = $('#submitBtn');
+        const resultMsg = $('#resultMessage');
+
+        $.ajax({
+            url: '{{ route("cart.add", ":id") }}'.replace(':id', productId),
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                quantity: quantity
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Agregando...');
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Mostrar mensaje
+                    resultMsg.removeClass('hidden bg-red-100 text-red-700');
+                    resultMsg.addClass('bg-eco-lime bg-opacity-20 text-eco-green');
+                    resultMsg.html(`
+                        <i class="fas fa-check-circle"></i>
+                        <strong>${response.message}</strong><br>
+                        <small>Total en carrito: $${response.cartTotal.toFixed(2)}</small>
+                    `);
+
+                    // Restaurar cantidad a 1
+                    setTimeout(() => {
+                        $('#quantity').val(1);
+                    }, 500);
+
+                    // Restaurar botón
+                    setTimeout(() => {
+                        btn.prop('disabled', false);
+                        btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
+                    }, 1000);
+                } else {
+                    mostrarError(response.message);
+                }
+            },
+            error: function(xhr) {
+                let message = 'Error al agregar producto';
+                if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+                mostrarError(message);
+            },
+            complete: function() {
+                btn.prop('disabled', false);
+                btn.html('<i class="fas fa-shopping-cart"></i> Agregar al Carrito');
+            }
+        });
+    }
+
+    // Mostrar error
+    function mostrarError(message) {
+        const resultMsg = $('#resultMessage');
+        resultMsg.removeClass('hidden bg-eco-lime bg-opacity-20 text-eco-green');
+        resultMsg.addClass('bg-red-100 text-red-700');
+        resultMsg.html(`
+            <i class="fas fa-exclamation-circle"></i>
+            <strong>${message}</strong>
+        `);
+    }
+
+    // Agregar estilos si no existen
+    if (!$('#cart-detail-animations').length) {
+        $('<style id="cart-detail-animations">')
+            .text(`
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                .fa-spin {
+                    animation: spin 1s linear infinite;
+                }
+            `)
+            .appendTo('head');
+    }
+</script>

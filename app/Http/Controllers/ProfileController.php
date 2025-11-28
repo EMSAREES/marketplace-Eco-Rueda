@@ -11,10 +11,19 @@ class ProfileController extends Controller
     /**
      * Mostrar el perfil del usuario
      */
+    // public function show()
+    // {
+    //     $user = Auth::user();
+    //     $orders = $user->orders()->orderBy('created_at', 'desc')->get();
+
+    //     return view('profile.show', compact('user', 'orders'));
+    // }
     public function show()
     {
         $user = Auth::user();
-        $orders = $user->orders()->orderBy('created_at', 'desc')->get();
+
+        // Paginación correcta: aplicar paginate directamente
+        $orders = $user->orders()->orderBy('created_at', 'desc')->paginate(5);
 
         return view('profile.show', compact('user', 'orders'));
     }
@@ -102,13 +111,14 @@ class ProfileController extends Controller
 
         try {
             // Actualizar dirección
-            $user->update([
-                'address' => $validated['address'],
-                'city' => $validated['city'],
-                'state' => $validated['state'],
-                'country' => $validated['country'],
-                'postal_code' => $validated['postal_code']
-            ]);
+            // $user->update([
+            //     'address' => $validated['address'],
+            //     'city' => $validated['city'],
+            //     'state' => $validated['state'],
+            //     'country' => $validated['country'],
+            //     'postal_code' => $validated['postal_code']
+            // ]);
+            $user->updateProfile($validated);
 
             return redirect()->route('profile.show')
                 ->with('success', '✓ Tu dirección de envío ha sido guardada');
@@ -123,11 +133,11 @@ class ProfileController extends Controller
     /**
      * Ver detalles de una orden específica
      */
-    public function viewOrder($orderId)
-    {
-        $user = Auth::user();
-        $order = $user->orders()->findOrFail($orderId);
+    // public function viewOrder($orderId)
+    // {
+    //     $user = Auth::user();
+    //     $order = $user->orders()->findOrFail($orderId);
 
-        return view('profile.partials.order-detail', compact('order'));
-    }
+    //     return view('profile.partials.order-detail', compact('order'));
+    // }
 }

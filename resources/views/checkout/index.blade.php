@@ -12,7 +12,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- FORMULARIO -->
         <div class="lg:col-span-2">
-            <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" class="space-y-8">
+            <form action="" method="POST" id="checkoutForm" name="checkoutForm" class="space-y-8">
                 @csrf
 
                 <!-- SECCIÓN 1: INFORMACIÓN DE ENVÍO -->
@@ -25,27 +25,27 @@
                         <!-- Nombre -->
                         <div>
                             <label class="block text-sm font-bold text-eco-dark mb-2">Nombre Completo *</label>
-                            <input type="text" name="shipping_name" required
+                            <input type="text" name="shipping_name" disabled
                                 value="{{ auth()->user()->name }}"
-                                class="w-full px-4 py-3 border-2 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
+                                class="w-full px-4 py-3 border-2 border-eco-green rounded-lg bg-gray-300 focus:outline-none focus:border-eco-lime">
                             @error('shipping_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Email -->
                         <div>
                             <label class="block text-sm font-bold text-eco-dark mb-2">Correo Electrónico *</label>
-                            <input type="email" name="shipping_email" required
+                            <input type="email" name="shipping_email" disabled
                                 value="{{ auth()->user()->email }}"
-                                class="w-full px-4 py-3 border-2 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
+                                class="w-full px-4 py-3 border-2 bg-gray-300  border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
                             @error('shipping_email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Teléfono -->
                         <div>
                             <label class="block text-sm font-bold text-eco-dark mb-2">Teléfono de Contacto *</label>
-                            <input type="tel" name="shipping_phone" required
+                            <input type="tel" name="shipping_phone" disabled
                                 value="{{ auth()->user()->phone }}"
-                                class="w-full px-4 py-3 border-2 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
+                                class="w-full px-4 py-3 border-2 bg-gray-300 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
                             @error('shipping_phone') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
@@ -55,7 +55,7 @@
                             <input type="text" name="shipping_address" required
                                 placeholder="Calle, número, apartamento"
                                 value="{{ auth()->user()->address }}"
-                                class="w-full px-4 py-3 border-2 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
+                                class="w-full px-4 py-3  border-2 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
                             @error('shipping_address') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
@@ -97,52 +97,18 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 2: INFORMACIÓN DE PAGO -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-eco-dark mb-6 pb-4 border-b-2 border-eco-green">
-                        <i class="fas fa-credit-card"></i> Información de Pago
-                    </h2>
-
-                    <p class="text-sm text-gray-600 mb-6 p-4 bg-blue-50 rounded">
-                        <i class="fas fa-info-circle text-blue-500"></i>
-                        Usa el número de tarjeta <strong>4242 4242 4242 4242</strong> para pruebas. Cualquier fecha futura y cualquier CVC.
-                    </p>
-
-                    <div class="space-y-6">
-                        <!-- Nombre en Tarjeta -->
-                        <div>
-                            <label class="block text-sm font-bold text-eco-dark mb-2">Nombre en la Tarjeta *</label>
-                            <input type="text" id="cardName"
-                                placeholder="Nombre como aparece en la tarjeta"
-                                class="w-full px-4 py-3 border-2 border-eco-green rounded-lg focus:outline-none focus:border-eco-lime">
-                        </div>
-
-                        <!-- Elemento Stripe -->
-                        <div>
-                            <label class="block text-sm font-bold text-eco-dark mb-2">Detalles de Tarjeta *</label>
-                            <div id="card-element" class="p-4 border-2 border-eco-green rounded-lg"></div>
-                            <div id="card-errors" class="text-red-500 text-sm mt-2"></div>
-                        </div>
-
-                        <!-- Checkbox Términos -->
-                        <div class="flex items-start gap-3">
-                            <input type="checkbox" id="terms" name="terms" required class="mt-1 w-4 h-4 text-eco-green">
-                            <label for="terms" class="text-sm text-gray-600">
-                                Acepto los términos y condiciones y la política de privacidad
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <input type="hidden" id="stripeToken" name="stripe_token">
 
                 <!-- BOTÓN PAGAR -->
                 <button type="submit" id="submitBtn" class="w-full bg-eco-green hover:bg-opacity-90 text-white font-bold text-lg py-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                     <i class="fas fa-lock"></i> Pagar y Completar Orden
                 </button>
+
             </form>
         </div>
 
         <!-- RESUMEN DE ORDEN -->
-        <div class="h-fit">
+        {{-- <div class="h-fit">
             <div class="bg-eco-green text-white rounded-lg shadow-lg p-8 space-y-6">
                 <h2 class="text-2xl font-bold">Resumen de Orden</h2>
 
@@ -197,52 +163,60 @@
                     <p><i class="fas fa-lock"></i> Tu información de pago es segura</p>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 </div>
 
 <!-- Scripts Stripe -->
+@endsection
+
+@section('customJs')
+
 <script src="https://js.stripe.com/v3/"></script>
+
 <script>
-    const stripe = Stripe('{{ env("STRIPE_PUBLIC_KEY") }}');
-    const elements = stripe.elements();
-    const cardElement = elements.create('card');
-    cardElement.mount('#card-element');
+document.addEventListener("DOMContentLoaded", function () {
 
-    const cardErrors = document.getElementById('card-errors');
-    cardElement.addEventListener('change', function(event) {
-        if (event.error) {
-            cardErrors.textContent = event.error.message;
-        } else {
-            cardErrors.textContent = '';
-        }
-    });
-
-    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+    $("#checkoutForm").submit(function(e){
         e.preventDefault();
 
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Procesando...';
+        $("#submitBtn").prop("disabled", true).text("Procesando pago...");
 
-        const {token} = await stripe.createToken(cardElement, {
-            name: document.getElementById('cardName').value
+        // AJAX NORMAL (NO token, NO card-element)
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{{ route('checkout.process') }}",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: "json",
+
+            success: function (response) {
+                if (response.success) {
+                    // Redirige a Stripe Checkout
+                    window.location.href = response.url;
+                } else {
+                    alert("Error: " + response.message);
+                    $("#submitBtn").prop("disabled", false).text("Pagar y Completar Orden");
+                }
+            },
+
+            error: function(xhr){
+                $("#submitBtn").prop("disabled", false).text("Pagar y Completar Orden");
+
+                if(xhr.status === 422){
+                    let errors = xhr.responseJSON.errors;
+                    let msg = "";
+                    $.each(errors, function(key,val){ msg += val[0] + "\n"; });
+                    alert(msg);
+                } else {
+                    alert("Error inesperado.");
+                }
+            }
         });
-
-        if (token) {
-            const form = document.getElementById('checkoutForm');
-            const hiddenInput = document.createElement('input');
-            hiddenInput.setAttribute('type', 'hidden');
-            hiddenInput.setAttribute('name', 'stripe_token');
-            hiddenInput.setAttribute('value', token.id);
-            form.appendChild(hiddenInput);
-            form.submit();
-        } else {
-            cardErrors.textContent = 'Error al procesar la tarjeta';
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Intentar de Nuevo';
-        }
     });
+});
 </script>
-
 @endsection

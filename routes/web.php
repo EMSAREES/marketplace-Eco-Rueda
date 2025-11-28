@@ -52,49 +52,52 @@ Route::get('/about', [PageController::class, 'about'])
 
 use App\Http\Controllers\CartController;
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/carrito', [CartController::class, 'index'])
-//         ->name('cart.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/carrito', [CartController::class, 'index'])
+        ->name('cart.index');
 
-//     Route::post('/carrito/agregar/{id}', [CartController::class, 'add'])
-//         ->name('cart.add');
+    Route::post('/carrito/agregar/{id}', [CartController::class, 'add'])
+        ->name('cart.add');
 
-//     Route::post('/carrito/actualizar/{id}', [CartController::class, 'update'])
-//         ->name('cart.update');
+    Route::post('/carrito/actualizar/{id}', [CartController::class, 'update'])
+        ->name('cart.update');
 
-//     Route::delete('/carrito/quitar/{id}', [CartController::class, 'remove'])
-//         ->name('cart.remove');
+    Route::delete('/carrito/quitar/{id}', [CartController::class, 'remove'])
+        ->name('cart.remove');
 
-//     Route::post('/carrito/vaciar', [CartController::class, 'clear'])
-//         ->name('cart.clear');
-// });
+    Route::post('/carrito/vaciar', [CartController::class, 'clear'])
+        ->name('cart.clear');
+});
 
 // ==================== CHECKOUT (Authenticated) ====================
 
 use App\Http\Controllers\CheckoutController;
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/checkout', [CheckoutController::class, 'index'])
-//         ->name('checkout.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])
+        ->name('checkout.index');
 
-//     Route::post('/checkout/procesar', [CheckoutController::class, 'process'])
-//         ->name('checkout.process');
+    Route::post('/checkout/procesar', [CheckoutController::class, 'process'])
+        ->name('checkout.process');
 
-//     Route::get('/checkout/exitoso', [CheckoutController::class, 'success'])
-//         ->name('checkout.success');
-// });
+    Route::get('/checkout/exitoso', [CheckoutController::class, 'success'])
+        ->name('checkout.success');
+
+    Route::get('/checkout/cancelado', [CheckoutController::class, 'cancel'])
+        ->name('checkout.cancel');
+});
 
 // ==================== ÓRDENES DEL CLIENTE (Authenticated) ====================
 
 use App\Http\Controllers\OrderController;
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/mis-compras', [OrderController::class, 'history'])
-//         ->name('orders.history');
+Route::middleware('auth')->group(function () {
+    Route::get('/mis-compras', [OrderController::class, 'history'])
+        ->name('orders.history');
 
-//     Route::get('/mis-compras/{id}', [OrderController::class, 'show'])
-//         ->name('orders.show');
-// });
+    Route::get('/mis-compras/{id}', [OrderController::class, 'show'])
+        ->name('orders.show');
+});
 
 // ==================== PANEL DE VENDEDOR (Vendor Only) ====================
 

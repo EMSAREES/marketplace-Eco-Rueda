@@ -41,6 +41,7 @@ class GoogleController extends Controller
 
             // Validar que tenemos email
             if (!$googleUser->getEmail()) {
+                echo "aqui llega";
                 return redirect()->route('login')
                     ->with('error', 'No pudimos obtener tu email de Google. Intenta de nuevo.');
             }
@@ -95,6 +96,7 @@ class GoogleController extends Controller
         } catch (Exception $e) {
             // Guardar el error completo en el log
             Log::error('Google OAuth Error: ' . $e->getMessage());
+            echo $e->getMessage();
             return redirect()->route('login')
                 ->with('error', 'Error al autenticar con Google. Intenta de nuevo.');
         }

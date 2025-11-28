@@ -42,6 +42,11 @@ class Product extends Model
         return $this->images()->where('is_primary', true)->first() ?? $this->images()->first();
     }
 
+    public function primaryImage()
+    {
+        return $this->hasOne(ProductImage::class)->where('is_primary', true);
+    }
+
 
     // Métodos
     public function isInStock()
