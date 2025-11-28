@@ -207,7 +207,8 @@
                                 @foreach($items as $item)
                                     <div class="flex justify-between items-center p-3 bg-eco-sand rounded">
                                         <div>
-                                            <p class="font-bold text-eco-dark">{{ $item->product->name }}</p>
+                                            <p class="font-bold text-eco-dark"> {{ $item->product?->name ?? 'Producto no disponible' }}
+</p>
                                             <p class="text-xs text-gray-600">Cantidad: {{ $item->quantity }}</p>
                                         </div>
                                         <p class="font-bold text-eco-green">${{ number_format($item->subtotal, 2) }}</p>
