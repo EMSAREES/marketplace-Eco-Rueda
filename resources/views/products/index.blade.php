@@ -1,10 +1,8 @@
-<!-- resources/views/products/index.blade.php -->
 @extends('layouts.app')
 
 @section('title', 'Catálogo de Productos')
 
 @section('content')
-<!-- HERO SECTION -->
 <section class="relative h-96 bg-gradient-to-r from-eco-green to-eco-lime overflow-hidden">
     <div class="absolute inset-0 opacity-10">
         <i class="fas fa-recycle absolute text-8xl top-10 left-10"></i>
@@ -23,13 +21,11 @@
     </div>
 </section>
 
-<!-- FILTROS Y BÚSQUEDA -->
 <section class="bg-white py-8 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <form method="GET" action="{{ route('products.index') }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                <!-- Búsqueda -->
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-4 text-eco-green"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
@@ -37,7 +33,6 @@
                         class="w-full pl-10 pr-4 py-2 border-2 border-eco-green rounded-lg">
                 </div>
 
-                <!-- Material -->
                 <select name="material"
                     class="w-full px-4 py-2 border-2 border-eco-green rounded-lg">
                     <option value="all">Todos los Materiales</option>
@@ -50,14 +45,13 @@
                     <option value="Madera Recuperada" {{ request('material') == 'Mixto' ? 'selected' : '' }}>Mixto</option>
                 </select>
 
-                <!-- Precio -->
                 <select name="price"
                     class="w-full px-4 py-2 border-2 border-eco-green rounded-lg">
                     <option value="all">Todos los Precios</option>
-                    <option value="lt50"     {{ request('price') == 'lt50' ? 'selected' : '' }}>Menos de $50</option>
-                    <option value="50-100"   {{ request('price') == '50-100' ? 'selected' : '' }}>$50 - $100</option>
-                    <option value="100-200"  {{ request('price') == '100-200' ? 'selected' : '' }}>$100 - $200</option>
-                    <option value="gt200"    {{ request('price') == 'gt200' ? 'selected' : '' }}>Más de $200</option>
+                    <option value="lt50"     {{ request('price') == 'lt50' ? 'selected' : '' }}>Menos de $50</option>
+                    <option value="50-100"   {{ request('price') == '50-100' ? 'selected' : '' }}>$50 - $100</option>
+                    <option value="100-200"  {{ request('price') == '100-200' ? 'selected' : '' }}>$100 - $200</option>
+                    <option value="gt200"    {{ request('price') == 'gt200' ? 'selected' : '' }}>Más de $200</option>
                 </select>
 
             </div>
@@ -72,7 +66,6 @@
 </section>
 
 
-<!-- CATÁLOGO DE PRODUCTOS -->
 <section id="catalogo" class="py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold mb-12 text-center text-eco-green">Nuestras Creaciones</h2>
@@ -81,7 +74,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($products as $product)
                     <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 group">
-                        <!-- IMAGEN PRODUCTO -->
                         <div class="relative h-80 bg-eco-sand overflow-hidden">
                             @if($product->getFeaturedImage())
                                 <img src="{{ $product->getFeaturedImage()->getUrl() }}"
@@ -93,24 +85,21 @@
                                 </div>
                             @endif
 
-                            <!-- BADGE MATERIAL -->
                             <div class="absolute top-4 right-4 bg-eco-lime text-eco-dark px-3 py-1 rounded-full text-xs font-bold">
                                 <i class="fas fa-leaf"></i> {{ $product->material }}
                             </div>
 
-                            <!-- BADGE STOCK -->
                             @if($product->stock > 0)
                                 <div class="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                                    En Stock ({{ $product->stock }})
+                                    <i class="fas fa-check-circle"></i> En Stock ({{ $product->stock }})
                                 </div>
                             @else
                                 <div class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                                    Agotado
+                                    <i class="fas fa-times-circle"></i> Agotado
                                 </div>
                             @endif
                         </div>
 
-                        <!-- INFO PRODUCTO -->
                         <div class="p-6">
                             <h3 class="text-lg font-bold text-eco-dark mb-2 line-clamp-2">{{ $product->name }}</h3>
 
@@ -121,19 +110,16 @@
 
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $product->description }}</p>
 
-                            <!-- VENDEDOR -->
                             <div class="mb-4 pb-4 border-b border-eco-sand">
                                 <p class="text-xs text-eco-green font-semibold">
                                     <i class="fas fa-store"></i> {{ $product->vendor->name }}
                                 </p>
                             </div>
 
-                            <!-- PRECIO -->
                             <div class="flex justify-between items-center mb-4">
                                 <span class="text-2xl font-bold text-eco-green">${{ number_format($product->price, 2) }}</span>
                             </div>
 
-                            <!-- BOTONES -->
                             <div class="flex gap-3">
                                 <a href="{{ route('products.show', $product->id) }}"
                                     class="flex-1 bg-eco-green text-white py-2 rounded-lg hover:bg-opacity-90 transition text-center font-semibold">
@@ -148,7 +134,7 @@
                                     </button>
                                 @else
                                     <button disabled class="flex-1 bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed opacity-60 font-semibold">
-                                        Agotado
+                                        <i class="fas fa-times-circle"></i> Agotado
                                     </button>
                                 @endif
                             </div>
@@ -157,7 +143,6 @@
                 @endforeach
             </div>
 
-            <!-- PAGINACIÓN -->
             <div class="mt-12">
                 {{ $products->links() }}
             </div>
@@ -170,7 +155,6 @@
     </div>
 </section>
 
-<!-- INFORMACIÓN SOSTENIBLE -->
 <section class="bg-eco-green text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-bold mb-12 text-center">¿Por Qué Eco-Rueda?</h2>
@@ -199,6 +183,13 @@
 @section('customJs')
 <script>
     function addToCart(productId) {
+        const btn = $(`#add-to-cart-${productId}`);
+        const originalHtml = btn.html(); // Guardar el contenido original del botón
+
+        // 1. Deshabilitar botón antes de AJAX
+        btn.prop('disabled', true);
+        btn.html('<i class="fas fa-spinner fa-spin"></i>'); // Muestra spinner durante la carga
+
         $.ajax({
             url: '{{ route("cart.add", ":id") }}'.replace(':id', productId),
             type: 'POST',
@@ -209,29 +200,40 @@
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // Animación del botón
-                    const btn = $(`#add-to-cart-${productId}`);
-                    btn.addClass('animate-pulse');
+                    // Éxito
+
+                    // Detener animación/spinner inmediatamente y mostrar check
+                    btn.removeClass('bg-eco-lime text-eco-dark').addClass('bg-eco-green text-white');
                     btn.html('<i class="fas fa-check"></i> ¡Agregado!');
 
-                    // Notificación
                     showCartNotification(response.message, 'success');
 
-                    // Restaurar botón
+                    // Restaurar botón después de 1.5 segundos
                     setTimeout(() => {
-                        btn.removeClass('animate-pulse');
-                        btn.html('<i class="fas fa-shopping-cart"></i> Agregar');
+                        btn.prop('disabled', false); // Rehabilita
+                        btn.removeClass('bg-eco-green text-white').addClass('bg-eco-lime text-eco-dark');
+                        btn.html(originalHtml);
                     }, 1500);
                 } else {
+                    // Error de lógica (ej. No hay stock)
                     showCartNotification(response.message, 'error');
+
+                    // Restaurar botón inmediatamente
+                    btn.prop('disabled', false);
+                    btn.html(originalHtml);
                 }
             },
             error: function(xhr) {
+                // Error de conexión/servidor
                 let message = 'Error al agregar producto';
                 if (xhr.responseJSON?.message) {
                     message = xhr.responseJSON.message;
                 }
                 showCartNotification(message, 'error');
+
+                // Restaurar botón inmediatamente
+                btn.prop('disabled', false);
+                btn.html(originalHtml);
             }
         });
     }
@@ -270,19 +272,20 @@
                     }
                 }
 
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.5; }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                .fa-spin {
+                    animation: spin 1s linear infinite;
                 }
 
                 .animate-slide-in-up {
                     animation: slideInUp 0.3s ease-out;
                 }
-
-                .animate-pulse {
-                    animation: pulse 0.5s ease-in-out;
-                }
             `)
             .appendTo('head');
     }
 </script>
+@endsection
