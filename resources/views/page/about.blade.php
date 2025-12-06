@@ -45,7 +45,7 @@
     <div class="max-w-6xl mx-auto px-6 text-center">
         <h2 class="text-3xl font-bold text-eco-green mb-8">Nuestro Equipo</h2>
 
-        <img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=1200&q=80"
+        <img src={{ asset('fotos_equipo/equipo.jpg')  }}
             alt="Equipo Eco-Rueda"
             class="w-full max-w-4xl mx-auto rounded-2xl shadow-lg">
 
@@ -63,44 +63,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
             <!-- MIEMBRO 1 -->
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition duration-300">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg"
-                     class="w-full h-56 object-cover">
-                <div class="p-5 text-center">
-                    <h3 class="text-xl font-bold text-eco-green">Juan Pérez</h3>
-                    <p class="text-gray-600 text-sm mt-2">Diseñador de Sillas</p>
+             @foreach ($miembros as $miembro)
+                <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition duration-300">
+                        <img src={{ asset('fotos_equipo/'. $miembro["foto"] )  }}
+                        class="w-full h-56 object-cover">
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-eco-green">{{ $miembro["nombre"] }}</h3>
+                            {{-- <p class="text-gray-600 text-sm mt-2">Diseñador de Sillas</p> --}}
+                        </div>
                 </div>
-            </div>
-
-            <!-- MIEMBRO 2 -->
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition duration-300">
-                <img src="https://randomuser.me/api/portraits/women/45.jpg"
-                     class="w-full h-56 object-cover">
-                <div class="p-5 text-center">
-                    <h3 class="text-xl font-bold text-eco-green">María López</h3>
-                    <p class="text-gray-600 text-sm mt-2">Encargada de Ensamblaje</p>
-                </div>
-            </div>
-
-            <!-- MIEMBRO 3 -->
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition duration-300">
-                <img src="https://randomuser.me/api/portraits/men/12.jpg"
-                     class="w-full h-56 object-cover">
-                <div class="p-5 text-center">
-                    <h3 class="text-xl font-bold text-eco-green">Carlos Martínez</h3>
-                    <p class="text-gray-600 text-sm mt-2">Especialista en Materiales</p>
-                </div>
-            </div>
-
-            <!-- MIEMBRO 4 -->
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition duration-300">
-                <img src="https://randomuser.me/api/portraits/women/20.jpg"
-                     class="w-full h-56 object-cover">
-                <div class="p-5 text-center">
-                    <h3 class="text-xl font-bold text-eco-green">Ana Rivera</h3>
-                    <p class="text-gray-600 text-sm mt-2">Logística y Control de Calidad</p>
-                </div>
-            </div>
+            @endforeach
 
         </div>
     </div>
